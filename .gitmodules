@@ -1,0 +1,3 @@
+[submodule "snapCloud"]
+	path = snapCloud
+	url = git@github.com:aaaschmitt/snap-cloud-testing.git
