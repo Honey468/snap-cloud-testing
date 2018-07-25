@@ -18,5 +18,5 @@ createdb -O ${DATABASE_USERNAME} ${DATABASE_NAME}
 # load the schema into the test db
 psql -U cloud -d ${DATABASE_NAME} -a -f snapCloud/cloud.sql > /dev/null
 
-# Run the tests nested under the test/*_test.lua directory
-cd snapCloud && resty -I ../test/ ../resty_busted.lua --pattern='_test.lua' ../test
+# Run the tests in the spec directory with resty nginx libraries
+cd snapCloud && resty -I ../spec/ ../resty_busted.lua ../spec
