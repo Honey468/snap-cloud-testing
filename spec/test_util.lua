@@ -109,7 +109,12 @@ function session_request(self, path, options)
 end
 
 -- Returns a stateful session object that will keep the user logged in
-function create_session(username, api_password)
+-- @param [create_new_user] default: true if false then will not create a new user in the db
+function create_session(username, api_password, create_new_user)
+    if create_new_user == nil or create_new_user then
+        create_user(username, api_password)
+    end
+
     local s, b, h = request('/users/' .. username .. '/login', {
         method = 'POST',
         data = api_password,

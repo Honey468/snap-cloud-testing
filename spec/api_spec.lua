@@ -31,7 +31,7 @@ local admin_password = test_util.hash_for_api('admin_test_123456')
 local username = 'aaaschmitty'
 local api_password = test_util.hash_for_api('test_123456')
 
-describe('The /login endpoint', function()
+describe('The login endpoint', function()
     use_test_server()
 
     before_each(function()
@@ -124,7 +124,7 @@ describe('The /login endpoint', function()
     end)
 end)
 
-describe('The /users/c endpoint', function()
+describe('The current_user endpoint', function()
     use_test_server()
 
     before_each(function()
@@ -132,8 +132,6 @@ describe('The /users/c endpoint', function()
     end)
 
     it('GET should return the correct metadata for logged in user', function()
-        test_util.create_user(username, api_password)
-
         local session = test_util.create_session(username, api_password)
 
         local status, body, headers = session:request('/users/c', {
@@ -148,7 +146,7 @@ describe('The /users/c endpoint', function()
     end)
 end)
 
-describe('The /users/:username endpoint', function()
+describe('The user endpoint', function()
     use_test_server()
 
     before_each(function()
@@ -156,8 +154,6 @@ describe('The /users/:username endpoint', function()
     end)
 
     it('GET should return info for the logged in user', function()
-        test_util.create_user(username, api_password)
-
         local session = test_util.create_session(username, api_password)
 
         local status, body, headers = session:request('/users/' .. username, {
@@ -183,6 +179,8 @@ describe('The /users/:username endpoint', function()
         assert.is.truthy(body.errors[1]:find('do not have permission'))
     end)
 
+    --[[ IN_DEV waiting on pr to be merged so that use is queried before delete is attempted
+
     it('an admin can DELETE a user', function()
         test_util.create_user(username, api_password)
         test_util.create_user(admin_user, admin_password, {isadmin = true})
@@ -199,19 +197,92 @@ describe('The /users/:username endpoint', function()
         assert.is_nil(test_util.retrieve_user(username))
     end)
 
+    ]]
+
     it('a basic user cannot DELETE a user', function()
         local second_u = username .. '_two'
-        test_util.create_user(username, api_password)
         test_util.create_user(second_u, api_password)
-
         local session = test_util.create_session(username, api_password)
 
         local status, body, headers = session:request('/users/' .. second_u, {
             method = 'DELETE',
-            expect='json'
+            expect = 'json'
         })
 
         assert.same(403, status)
         assert.is.truthy(body.errors[1]:find('do not have permission'))
     end)
+end)
+
+describe('The newpassword endpoint', function()
+    local new_api_password = test_util.hash_for_api('updated_password_123456')
+
+    use_test_server()
+
+    before_each(function()
+        test_util.clean_db()
+    end)
+
+    local update_password = function(session, old, new)
+        return session:request('/users/' .. username .. '/newpassword', {
+            method = 'POST',
+            expect = 'json',
+            data = {
+                oldpassword = old,
+                password_repeat = new,
+                newpassword = new
+            }
+        })
+    end
+
+    it ('allows a logged in user to set a new password', function()
+        local session = test_util.create_session(username, api_password)
+
+        local status, body, headers = update_password(session, api_password, new_api_password)
+
+        assert.same(200, status)
+        assert.is.truthy(body.message:find('updated'))
+    end)
+
+    it('allows a user to log in with an updated password', function()
+        local session = test_util.create_session(username, api_password)
+
+        update_password(session, api_password, new_api_password)
+
+        local status, body, headers = request('/users/' .. username .. '/login', {
+            method = 'POST',
+            data = new_api_password,
+            expect='json'
+        })
+
+        assert.same(200, status)
+        assert.is.truthy(body.message:find(username))
+    end)
+
+    it('does not allow a user to log in with an old password', function()
+        local session = test_util.create_session(username, api_password)
+
+        update_password(session, api_password, new_api_password)
+
+        local status, body, headers = request('/users/' .. username .. '/login', {
+            method = 'POST',
+            data = api_password,
+            expect='json'
+        })
+
+        assert.same(400, status)
+        assert.is.truthy(body.errors[1]:find('wrong password'))
+    end)
+
+    it('returns an error for a null new password', function()
+        local session = test_util.create_session(username, api_password)
+
+        local status, body, headers = update_password(session, api_password, nil)
+
+        assert.same(400, status)
+        print(body.errors[1])
+        assert.is.truthy(body.errors[1]:find('newpassword'))
+    end)
+
+    -- NOTE: sending a nil oldpassword causes an app exception with an NPE in hash_password
 end)
