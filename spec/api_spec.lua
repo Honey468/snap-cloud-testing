@@ -107,7 +107,7 @@ describe('The login endpoint', function()
         assert.same(404, status)
         assert.is.truthy(error:find('No user') and error:find('exists'))
     end)
-    
+
     it('POST should error for a non-verified user with no token', function()
         test_util.create_user(username, api_password, {verified = false})
 
@@ -179,13 +179,11 @@ describe('The user endpoint', function()
         assert.is.truthy(body.errors[1]:find('do not have permission'))
     end)
 
-    --[[ IN_DEV waiting on pr to be merged so that use is queried before delete is attempted
-
     it('an admin can DELETE a user', function()
         test_util.create_user(username, api_password)
         test_util.create_user(admin_user, admin_password, {isadmin = true})
 
-        local session = test_util.create_session(admin_user, admin_password)
+        local session = test_util.create_session(admin_user, admin_password, false)
 
         local status, body, headers = session:request('/users/' .. username, {
             method = 'DELETE',
@@ -196,8 +194,6 @@ describe('The user endpoint', function()
         assert.is.truthy(body.message:find(username) and body.message:find('removed'))
         assert.is_nil(test_util.retrieve_user(username))
     end)
-
-    ]]
 
     it('a basic user cannot DELETE a user', function()
         local second_u = username .. '_two'
@@ -280,7 +276,6 @@ describe('The newpassword endpoint', function()
         local status, body, headers = update_password(session, api_password, nil)
 
         assert.same(400, status)
-        print(body.errors[1])
         assert.is.truthy(body.errors[1]:find('newpassword'))
     end)
 
