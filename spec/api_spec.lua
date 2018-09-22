@@ -107,7 +107,7 @@ describe('The login endpoint', function()
         assert.same(404, status)
         assert.is.truthy(error:find('No user') and error:find('exists'))
     end)
-    
+
     it('POST should error for a non-verified user with no token', function()
         test_util.create_user(username, api_password, {verified = false})
 
@@ -280,7 +280,6 @@ describe('The newpassword endpoint', function()
         local status, body, headers = update_password(session, api_password, nil)
 
         assert.same(400, status)
-        print(body.errors[1])
         assert.is.truthy(body.errors[1]:find('newpassword'))
     end)
 
