@@ -183,7 +183,7 @@ describe('The user endpoint', function()
         test_util.create_user(username, api_password)
         test_util.create_user(admin_user, admin_password, {isadmin = true})
 
-        local session = test_util.create_session(admin_user, admin_password)
+        local session = test_util.create_session(admin_user, admin_password, false)
 
         local status, body, headers = session:request('/users/' .. username, {
             method = 'DELETE',
