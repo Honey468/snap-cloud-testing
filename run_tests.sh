@@ -14,7 +14,7 @@ pg_ctl status 2&> /dev/null
 pg_status=$?
 if [ "$pg_status" = "1" ]
 then
-    pg_ctl start &
+    pg_ctl start &> /dev/null
     echo 'Waiting for pg to start...'
     sleep 5;
 fi
@@ -37,7 +37,7 @@ results=$?
 # Cleanup postgres.
 if [ $pg_status -eq 1 ]
 then
-    pg_ctl stop &
+    pg_ctl stop &> /dev/null
 fi
 
 exit $results;
