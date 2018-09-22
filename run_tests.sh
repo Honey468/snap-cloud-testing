@@ -7,6 +7,18 @@
 # author: andrew schmitt
 # since 7/9/2018
 
+source snapCloud/.env
+export PGDATA=$PG_DATA_DIR
+# Start postgres if not running.
+pg_ctl status 2&> /dev/null
+pg_status=$?
+if [ "$pg_status" = "1" ]
+then
+    pg_ctl start &
+    echo 'Waiting for pg to start...'
+    sleep 5;
+fi
+
 # lapis config will pull this in as the db name
 export DATABASE_NAME=snapcloud_test
 export DATABASE_USERNAME=cloud
@@ -20,3 +32,12 @@ psql -U cloud -d ${DATABASE_NAME} -a -f snapCloud/cloud.sql > /dev/null
 
 # Run the tests in the spec directory with resty nginx libraries
 cd snapCloud && resty -I ../spec/ ../resty_busted.lua ../spec
+results=$?
+
+# Cleanup postgres.
+if [ $pg_status -eq 1 ]
+then
+    pg_ctl stop &
+fi
+
+exit $results;
