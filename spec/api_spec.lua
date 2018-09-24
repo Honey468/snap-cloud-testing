@@ -31,12 +31,12 @@ local admin_password = test_util.hash_for_api('admin_test_123456')
 local username = 'aaaschmitty'
 local api_password = test_util.hash_for_api('test_123456')
 
+-- Reset the database state before each test.
+local busted = require('busted')
+busted.before_each(test_util.clean_db)
+
 describe('The login endpoint', function()
     use_test_server()
-
-    before_each(function()
-        test_util.clean_db()
-    end)
 
     it('POST allows a valid user to login', function()
         test_util.create_user(username, api_password)
@@ -44,7 +44,7 @@ describe('The login endpoint', function()
         local status, body, headers = request('/users/' .. username .. '/login', {
             method = 'POST',
             data = api_password,
-            expect='json'
+            expect = 'json'
         })
 
         assert.same(200, status)
@@ -58,7 +58,7 @@ describe('The login endpoint', function()
         local status, body, headers = request('/users/' .. username .. '/login', {
             method = 'POST',
             data = api_password,
-            expect='json'
+            expect = 'json'
         })
 
         assert.same(200, status)
@@ -72,7 +72,7 @@ describe('The login endpoint', function()
         local status, body, headers = request('/users/' .. username .. '/login', {
             method = 'POST',
             data = api_password,
-            expect='json'
+            expect = 'json'
         })
 
         local error = body.errors[1]
@@ -87,7 +87,7 @@ describe('The login endpoint', function()
         local status, body, headers = request('/users/' .. username .. '/login', {
             method = 'POST',
             data = api_password .. 'a', -- append an invalid char
-            expect='json'
+            expect = 'json'
         })
 
         assert.same(400, status)
@@ -99,7 +99,7 @@ describe('The login endpoint', function()
         local status, body, headers = request('/users/' .. username .. '/login', {
             method = 'POST',
             data = api_password,
-            expect='json'
+            expect = 'json'
         })
 
         local error = body.errors[1]
@@ -114,7 +114,7 @@ describe('The login endpoint', function()
         local status, body, headers = request('/users/' .. username .. '/login', {
             method = 'POST',
             data = api_password,
-            expect='json'
+            expect = 'json'
         })
 
         local error = body.errors[1]
@@ -127,16 +127,12 @@ end)
 describe('The current_user endpoint', function()
     use_test_server()
 
-    before_each(function()
-        test_util.clean_db()
-    end)
-
     it('GET should return the correct metadata for logged in user', function()
         local session = test_util.create_session(username, api_password)
 
         local status, body, headers = session:request('/users/c', {
             method = 'GET',
-            expect='json'
+            expect = 'json'
         })
 
         assert.same(200, status)
@@ -149,16 +145,12 @@ end)
 describe('The user endpoint', function()
     use_test_server()
 
-    before_each(function()
-        test_util.clean_db()
-    end)
-
     it('GET should return info for the logged in user', function()
         local session = test_util.create_session(username, api_password)
 
         local status, body, headers = session:request('/users/' .. username, {
             method = 'GET',
-            expect='json'
+            expect = 'json'
         })
 
         assert.same(200, status)
@@ -172,7 +164,7 @@ describe('The user endpoint', function()
 
         local status, body, headers = request('/users/' .. username, {
             method = 'GET',
-            expect='json'
+            expect = 'json'
         })
 
         assert.same(403, status)
@@ -187,7 +179,7 @@ describe('The user endpoint', function()
 
         local status, body, headers = session:request('/users/' .. username, {
             method = 'DELETE',
-            expect='json'
+            expect = 'json'
         })
 
         assert.same(200, status)
@@ -214,10 +206,6 @@ describe('The newpassword endpoint', function()
     local new_api_password = test_util.hash_for_api('updated_password_123456')
 
     use_test_server()
-
-    before_each(function()
-        test_util.clean_db()
-    end)
 
     local update_password = function(session, old, new)
         return session:request('/users/' .. username .. '/newpassword', {
@@ -248,7 +236,7 @@ describe('The newpassword endpoint', function()
         local status, body, headers = request('/users/' .. username .. '/login', {
             method = 'POST',
             data = new_api_password,
-            expect='json'
+            expect = 'json'
         })
 
         assert.same(200, status)
@@ -263,7 +251,7 @@ describe('The newpassword endpoint', function()
         local status, body, headers = request('/users/' .. username .. '/login', {
             method = 'POST',
             data = api_password,
-            expect='json'
+            expect = 'json'
         })
 
         assert.same(400, status)
