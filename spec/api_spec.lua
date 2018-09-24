@@ -269,3 +269,37 @@ describe('The newpassword endpoint', function()
 
     -- NOTE: sending a nil oldpassword causes an app exception with an NPE in hash_password
 end)
+
+describe('The projects endpoint', function()
+    use_test_server()
+
+    local project_file = io.open('../test-projects/untitled.xml')
+    local project_contents = project_file:read('*all')
+    project_file:close()
+
+    pending('POST allows a logged in user create a new project', function()
+        local session = test_util.create_session(username, api_password)
+
+        assert.same(200, status)
+        assert.is.truthy(body.message:find('saved'))
+    end)
+
+    pending('POST creating a new project verifies a user', function()
+    end)
+
+    pending('GET returns a private project when logged in', function()
+    end)
+
+    pending('GET does not return a private project when logged out', function()
+    end)
+
+    pending('POST successfully updates an existing project', function()
+    end)
+
+    pending('POST returns an error for a null xml body', function()
+    end)
+
+    pending('POST updating a project without a thumbnail param extracts it from the xml')
+
+    pending('POST updating a project when logged out fails')
+end)
