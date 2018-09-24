@@ -44,7 +44,7 @@ describe('The login endpoint', function()
         local status, body, headers = request('/users/' .. username .. '/login', {
             method = 'POST',
             data = api_password,
-            expect='json'
+            expect = 'json'
         })
 
         assert.same(200, status)
@@ -58,7 +58,7 @@ describe('The login endpoint', function()
         local status, body, headers = request('/users/' .. username .. '/login', {
             method = 'POST',
             data = api_password,
-            expect='json'
+            expect = 'json'
         })
 
         assert.same(200, status)
@@ -72,7 +72,7 @@ describe('The login endpoint', function()
         local status, body, headers = request('/users/' .. username .. '/login', {
             method = 'POST',
             data = api_password,
-            expect='json'
+            expect = 'json'
         })
 
         local error = body.errors[1]
@@ -87,7 +87,7 @@ describe('The login endpoint', function()
         local status, body, headers = request('/users/' .. username .. '/login', {
             method = 'POST',
             data = api_password .. 'a', -- append an invalid char
-            expect='json'
+            expect = 'json'
         })
 
         assert.same(400, status)
@@ -99,7 +99,7 @@ describe('The login endpoint', function()
         local status, body, headers = request('/users/' .. username .. '/login', {
             method = 'POST',
             data = api_password,
-            expect='json'
+            expect = 'json'
         })
 
         local error = body.errors[1]
@@ -114,7 +114,7 @@ describe('The login endpoint', function()
         local status, body, headers = request('/users/' .. username .. '/login', {
             method = 'POST',
             data = api_password,
-            expect='json'
+            expect = 'json'
         })
 
         local error = body.errors[1]
@@ -132,7 +132,7 @@ describe('The current_user endpoint', function()
 
         local status, body, headers = session:request('/users/c', {
             method = 'GET',
-            expect='json'
+            expect = 'json'
         })
 
         assert.same(200, status)
@@ -150,7 +150,7 @@ describe('The user endpoint', function()
 
         local status, body, headers = session:request('/users/' .. username, {
             method = 'GET',
-            expect='json'
+            expect = 'json'
         })
 
         assert.same(200, status)
@@ -164,7 +164,7 @@ describe('The user endpoint', function()
 
         local status, body, headers = request('/users/' .. username, {
             method = 'GET',
-            expect='json'
+            expect = 'json'
         })
 
         assert.same(403, status)
@@ -179,7 +179,7 @@ describe('The user endpoint', function()
 
         local status, body, headers = session:request('/users/' .. username, {
             method = 'DELETE',
-            expect='json'
+            expect = 'json'
         })
 
         assert.same(200, status)
@@ -236,7 +236,7 @@ describe('The newpassword endpoint', function()
         local status, body, headers = request('/users/' .. username .. '/login', {
             method = 'POST',
             data = new_api_password,
-            expect='json'
+            expect = 'json'
         })
 
         assert.same(200, status)
@@ -251,7 +251,7 @@ describe('The newpassword endpoint', function()
         local status, body, headers = request('/users/' .. username .. '/login', {
             method = 'POST',
             data = api_password,
-            expect='json'
+            expect = 'json'
         })
 
         assert.same(400, status)
