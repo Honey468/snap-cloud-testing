@@ -298,24 +298,31 @@ expose('The projects endpoint', function()
     end)
 
     it('POST creating a new project verifies a user #only', function()
+        local project_file = io.open('../test-projects/untitled.xml')
+        local project_contents = project_file:read('*all')
+        project_file:close()
+
         local user = test_util.create_user(username, api_password, {
-            isverified = false
+            verified = false
         })
         assert.is_false(user.verified)
         local session = test_util.create_session(username, api_password, false)
         local project_url = '/projects/' .. username .. '/my-first-project'
-        local status, body = session:mock_request(app, project_url, {
+        local status, body, headers = session:mock_request(app, project_url, {
             method = 'POST',
             expect = 'json',
+            allow_error = true,
             body = to_json({
                 xml = project_contents,
                 media = '',
                 thumbnail = ''
             })
         })
+        print(status)
+        print(body)
         assert.is.truthy(body.message:find('saved'))
         user:reload()
-        assert.True(user.verified)
+        assert.is_true(user.verified)
         assert.same(200, status)
     end)
 

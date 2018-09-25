@@ -97,7 +97,6 @@ function parse_cookies(headers)
     return result
 end
 
-
 function session_request(self, path, options)
     if options.headers then
         options.headers.Cookie = self.session
