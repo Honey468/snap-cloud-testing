@@ -28,6 +28,7 @@ local Users = package.loaded.Users
 local Tokens = package.loaded.Tokens
 local stringx = require 'pl.stringx'
 local request = require('lapis.spec.server').request
+local mock_request = require('lapis.spec.request').mock_request
 
 -- Deletes all users and tokens from the database.
 function clean_db()
@@ -108,6 +109,18 @@ function session_request(self, path, options)
     return request(path, options)
 end
 
+function mock_session_request(self, app, url, options)
+    if options.headers then
+        options.headers.Cookie = self.session
+    else
+        options.headers = {
+            Cookie = self.session
+        }
+    end
+
+    return mock_request(app, url, options)
+end
+
 -- Returns a stateful session object that will keep the user logged in
 -- @param [create_new_user] default: true if false then will not create a new user in the db
 function create_session(username, api_password, create_new_user)
@@ -118,12 +131,13 @@ function create_session(username, api_password, create_new_user)
     local s, b, h = request('/users/' .. username .. '/login', {
         method = 'POST',
         data = api_password,
-        expect='json'
+        expect = 'json'
     })
 
     return {
         session = h.set_cookie,
-        request = session_request
+        request = session_request,
+        mock_request = mock_session_request
     }
 end
 

@@ -21,10 +21,14 @@
 --
 -- You should have received a copy of the GNU Affero General Public License
 -- along with this program.  If not, see <http://www.gnu.org/licenses/>.
+local app = require('app')
 local request = require('lapis.spec.server').request
+local mock_request = require('lapis.spec.request').mock_request
 local use_test_server = require('lapis.spec').use_test_server
 local test_util = require 'test_util'
 local to_json = require('lapis.util').to_json
+
+
 
 -- Some sample username/password combos to use in tests
 local admin_user = 'test_admin'
@@ -279,17 +283,16 @@ describe('The projects endpoint', function()
 
     it('POST allows a logged in user create a new project #only', function()
         local session = test_util.create_session(username, api_password)
-
         local project_url = '/projects/' .. username .. '/my-first-project'
-
-        local status, body, headers = session:request(project_url, {
+        local status, body = session:mock_request(app, project_url, {
             method = 'POST',
             expect = 'json',
-            data = to_json({
-                xml = project_contents
+            body = to_json({
+                xml = project_contents,
+                media = '',
+                thumbnail = ''
             })
         })
-        assert.same('', body)
         assert.is.truthy(body.message:find('saved'))
         assert.same(200, status)
     end)
