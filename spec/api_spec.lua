@@ -24,6 +24,7 @@
 local request = require('lapis.spec.server').request
 local use_test_server = require('lapis.spec').use_test_server
 local test_util = require 'test_util'
+local to_json = require('lapis.util').to_json
 
 -- Some sample username/password combos to use in tests
 local admin_user = 'test_admin'
@@ -129,7 +130,6 @@ describe('The current_user endpoint', function()
 
     it('GET should return the correct metadata for logged in user', function()
         local session = test_util.create_session(username, api_password)
-
         local status, body, headers = session:request('/users/c', {
             method = 'GET',
             expect = 'json'
@@ -277,11 +277,21 @@ describe('The projects endpoint', function()
     local project_contents = project_file:read('*all')
     project_file:close()
 
-    pending('POST allows a logged in user create a new project', function()
+    it('POST allows a logged in user create a new project #only', function()
         local session = test_util.create_session(username, api_password)
 
-        assert.same(200, status)
+        local project_url = '/projects/' .. username .. '/my-first-project'
+
+        local status, body, headers = session:request(project_url, {
+            method = 'POST',
+            expect = 'json',
+            data = to_json({
+                xml = project_contents
+            })
+        })
+        assert.same('', body)
         assert.is.truthy(body.message:find('saved'))
+        assert.same(200, status)
     end)
 
     pending('POST creating a new project verifies a user', function()
@@ -301,5 +311,6 @@ describe('The projects endpoint', function()
 
     pending('POST updating a project without a thumbnail param extracts it from the xml')
 
+    -- TODO: requires updates to the Snap!Cloud
     pending('POST updating a project when logged out fails')
 end)
