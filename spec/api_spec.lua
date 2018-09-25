@@ -274,7 +274,7 @@ describe('The newpassword endpoint', function()
     -- NOTE: sending a nil oldpassword causes an app exception with an NPE in hash_password
 end)
 
-describe('The projects endpoint', function()
+expose('The projects endpoint', function()
     use_test_server()
 
     local project_file = io.open('../test-projects/untitled.xml')
@@ -297,7 +297,26 @@ describe('The projects endpoint', function()
         assert.same(200, status)
     end)
 
-    pending('POST creating a new project verifies a user', function()
+    it('POST creating a new project verifies a user #only', function()
+        local user = test_util.create_user(username, api_password, {
+            isverified = false
+        })
+        assert.is_false(user.verified)
+        local session = test_util.create_session(username, api_password, false)
+        local project_url = '/projects/' .. username .. '/my-first-project'
+        local status, body = session:mock_request(app, project_url, {
+            method = 'POST',
+            expect = 'json',
+            body = to_json({
+                xml = project_contents,
+                media = '',
+                thumbnail = ''
+            })
+        })
+        assert.is.truthy(body.message:find('saved'))
+        user:reload()
+        assert.True(user.verified)
+        assert.same(200, status)
     end)
 
     pending('GET returns a private project when logged in', function()

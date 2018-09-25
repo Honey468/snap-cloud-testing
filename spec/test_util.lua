@@ -33,6 +33,7 @@ local mock_request = require('lapis.spec.request').mock_request
 -- Deletes all users and tokens from the database.
 function clean_db()
     db.delete('tokens')
+    db.delete('projects')
     db.delete('users')
 end
 
