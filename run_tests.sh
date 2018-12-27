@@ -22,14 +22,15 @@ fi
 # lapis config will pull this in as the db name
 export DATABASE_NAME=snapcloud_test
 export DATABASE_USERNAME=cloud
+export LAPIS_ENVIRONMENT=test
 
 # Kill any existing test database and create a new one
 dropdb --if-exists ${DATABASE_NAME}
 createdb -O ${DATABASE_USERNAME} ${DATABASE_NAME}
 
+echo 'Setting up db'
 # load the schema into the test db
 psql -U cloud -d ${DATABASE_NAME} -a -f snapCloud/cloud.sql > /dev/null
-
 echo 'Running tests...'
 # Run the tests in the spec directory with resty nginx libraries
 cd snapCloud && resty -I ../spec/ ../resty_busted.lua ../spec $@
